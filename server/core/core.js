@@ -5,7 +5,7 @@ const path = require('path');
 const childProcess = require('child_process');
 const emoji = require('node-emoji');
 const system = require('../../system_confs/system_vars.json');
-const mongoose = require('mongoose');
+//const mongoose = require('mongoose');
 
 //Variables and Constants
 var coreVars = {

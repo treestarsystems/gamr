@@ -19,6 +19,30 @@ const handlebarsHelperFunctions = require('./view/handlebars/helpers.js');
 const routes = require('./controller/routes.js');
 const appSpecificCode = require('./app.js');
 
+/*
+//Fan Control
+const five = require('johnny-five');
+//Notes: 3k RPM fans turn on at around 168 brightness and max out at 255.
+function fanRegulator () {
+ try {
+  let board = new five.Board({
+   repl: false,
+   debug: false,
+  });
+  board.on('ready',() => {
+   console.log('Begin Fan Control');
+   //Setup fan
+   let fan = new five.Led(9);
+   fan.on();
+   fan.brightness(170);
+  });
+ } catch (e) {
+  console.log(e);
+ }
+}
+*/
+
+/*
 //Main connection to DB
 mongoose.connect(
   core.coreVars.dbServer,
@@ -33,6 +57,7 @@ const sessionStore = new mongoStore({
  ttl: 2 * 24 * 60 * 60,
  autoRemove: 'native'
 });
+*/
 
 //Global Middleware: Must be defined before routes
 app.use(express.json({ limit: '50mb' }));
@@ -40,6 +65,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(compression());
 app.use(cors());
 
+/*
 //Express session middleware
 app.use(
  session({
@@ -52,6 +78,7 @@ app.use(
   store: sessionStore
  })
 );
+*/
 
 // Serve secure cookies, requires HTTPS
 /*
@@ -105,6 +132,7 @@ function startApp () {
 //Check if app is runing as correct user then execute.
 core.incorrectUser(process.env.USER,process.env.HOST,process.env.PORT);
 if (process.env.CORRECT_USER && process.env.INSTANCE_TYPE == 'primary') {
+/*
  //Check if MongoDB is running.
  childProcess.exec('ps -C mongod -o pid=,cmd=', (error, stdout, stderr) => {
   let cmd = stdout.match(/mongod(.*)/g)[0];
@@ -134,9 +162,21 @@ if (process.env.CORRECT_USER && process.env.INSTANCE_TYPE == 'primary') {
    }
   }
  });
+*/
+ //Start app.
+ startApp();
+ //Start all cron jobs defined in ./server/core/cronJobs.js
+ if (process.env.INSTANCE_TYPE == 'primary') {
+  console.log(`${core.coreVars.projectName}|${process.env.pm_id}: Primary Instance starting cronJobs...`);
+  for (key in jobs) {
+   jobs[key].start();
+  }
+//  fanRegulator();
+ }
 }
 
 process.on('SIGINT', () => {
+/*
  childProcess.exec(`mongod -f ${core.coreVars.systemConfsDir}/mongod.conf --shutdown`, (error, stdout, stderr) => {
   if (error) {
    console.error(`${core.coreVars.projectName}|${process.env.pm_id}: MongoDB error: ${error}`);
@@ -145,4 +185,6 @@ process.on('SIGINT', () => {
   }
   process.exit(error ? 1 : 0);
  });
+*/
+ process.exit(0);
 });
