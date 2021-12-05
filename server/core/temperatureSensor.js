@@ -58,9 +58,9 @@ async function readSensorSingleDS18B20 (sensorID) {
    [sensorID]: {
     "reading": {
      "raw": Number(sensorDataResults),
-     "c": core.temperatureConversion(sensorDataResults, 'c'),
+     "k": core.temperatureConversion(sensorDataResults, 'k'),
      "f": core.temperatureConversion(sensorDataResults, 'f'),
-     "k": core.temperatureConversion(sensorDataResults, 'k')
+     "c": core.temperatureConversion(sensorDataResults, 'c')
     }
    }
   }
@@ -92,6 +92,14 @@ async function readSensorSingleDS18B20 (sensorID) {
      "28-011830b2d5ff":{
       ...truncated
      }
+    },
+    {
+     "averageTemperature":{
+      "raw":22093.5,
+      "k":295.2435,
+      "f":71.7683,
+      "c":22.0935
+     }
     }
    ]
   }
@@ -106,6 +114,33 @@ async function readSensorAllDS18B20 () {
    let reading = await readSensorSingleDS18B20(as);
    allSensorReadings.push(reading.payload);
   }
+  //Takes allSensorReadings
+  async function averageTemperature (asr) {
+   //The temperature in F is used to calculate the average.
+   let readingsByScale = {raw:[],k:[],f:[],c:[]};
+   asr.forEach((e,i) => {
+    for (sensorID in e) {
+     readingsByScale["raw"].push(e[sensorID].reading.raw);
+     readingsByScale["k"].push(e[sensorID].reading.k);
+     readingsByScale["f"].push(e[sensorID].reading.f);
+     readingsByScale["c"].push(e[sensorID].reading.c);
+    }
+   });
+   /*
+    Calculate the average by using reduce to add all items in the
+    array and divide by the array's length.
+    ***Maybe add this to the temperatureSensor module or readSensorAllDS18B20
+   */
+   let average = (r) => r.reduce((a, b) => a + b) / r.length;
+   //Loop through object, calculate average, then assign to output
+   let averageTemperatureReadings = {};
+   for (rbs in readingsByScale) {
+    averageTemperatureReadings[rbs] = average(readingsByScale[rbs]);
+   }
+   return averageTemperatureReadings;
+  }
+  //Assign results of averages to output value.
+  allSensorReadings.push({"averageTemperature": await averageTemperature(allSensorReadings)});
   returnObj.payload = allSensorReadings;
   return returnObj;
  } catch (e) {
@@ -116,12 +151,12 @@ async function readSensorAllDS18B20 () {
 /*
 //Test block
 (async () => {
- let t0 = await listSensorAllDS18B20();
- let t1 = await readSensorSingleDS18B20(t0.payload[0]);
- let t2 = await readSensorAllDS18B20()
- console.log(JSON.stringify(t0));
- console.log(JSON.stringify(t1));
- console.log(JSON.stringify(t2));
+// let t0 = await listSensorAllDS18B20();
+// let t1 = await readSensorSingleDS18B20(t0.payload[0]);
+// let t2 = await readSensorAllDS18B20()
+// console.log(JSON.stringify(t0));
+// console.log(JSON.stringify(t1));
+// console.log(JSON.stringify(t2));
 })();
 */
 
