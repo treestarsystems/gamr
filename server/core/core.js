@@ -173,6 +173,34 @@ function genPassword(password) {
  };
 }
 
+function defaultErrorHandler (error) {
+ let returnObj = {"status": "","message": "","payload": ""};
+ //This is done just incase you use the "throw" keyword to produce your own error.
+ let errorMessage = ((error.message) ? error.message:error);
+ returnObj.status = "failure";
+ returnObj.message = `Function: ${arguments.callee.caller.name} - Error: ${errorMessage}`;
+ returnObj.payload = error;
+ console.error(returnObj);
+ return returnObj;
+}
+
+function temperatureConversion(temperature, scale) {
+ //From millidegree Celsius to Celsius
+ if (scale == 'c') {
+  return Number(temperature)/1000;
+ }
+
+ //From millidegree Celsius to Fahrenheit
+ if (scale == 'f') {
+  return ((Number(temperature)/1000)*9/5)+32;
+ }
+
+ //From millidegree Celsius to Kelvin
+ if (scale == 'k') {
+  return (Number(temperature)/1000)+273.15;
+ }
+}
+
 module.exports = {
  genRegular,
  genSpecial,
@@ -192,5 +220,7 @@ module.exports = {
  ensureAuthenticated,
  forwardAuthenticated,
  validPassword,
- genPassword
+ genPassword,
+ defaultErrorHandler,
+ temperatureConversion
 }
