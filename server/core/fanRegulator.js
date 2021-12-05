@@ -2,8 +2,12 @@
  Purpose - A collection of fan control functions
 */
 const core = require("./core.js");
+const EventEmitter = require('events');
 const five = require("johnny-five");
 const temperatureSensor = require("./temperatureSensor.js");
+
+//Temp is in F.
+var defaultTemperaure = 70;
 
 //Notes: 3k+ RPM fans turn on at around 168 brightness and max out at 255 like normal.
 //Pass this an array of numbers representing the pins that the fan(s) is/are connected to.
@@ -15,13 +19,24 @@ async function fanRegulator (fro) {
         Ex: [2,3]
  */
  try {
+  //Define event and addListener
+  const adjustFan = new EventEmitter();
+  //Using function keyword to allow the use of the this keyword
+  //Source: https://nodejs.org/api/events.html#passing-arguments-and-this-to-listeners
+  //p = pin | s = speed (aka brightness in Johnny-Five)
+  adjustFan.on('changeFanSpeed', function (p,s) {
+   console.log(`Pin: ${p} | Speed: ${s} | Temp: ${temp}F`);
+  })
+  adjustFan.on('emergencyShutdown', function (p,s) {
+   console.log(`Shutting Down: Pin: ${p} | Speed: ${s} | Temp: ${temp}F`);
+  })
+
   //setInterval to generate enclosure's temp
-  let temp = 0;
+  let temp = defaultTemperaure;
   let calculateAverageTemp = setInterval (async () => {
    let temperatureReadings = await temperatureSensor.readSensorAllDS18B20();
    if (temperatureReadings.status == 'failure') {
-    console.log(`\n***Error Reading Temperature. Defaulting to 70F.\n***${temperatureReadings.payload}`);
-    temp = 70;
+    console.log(`\n***Error Reading Temperature. Defaulting to ${temp}F.\n***${temperatureReadings.payload}`);
    } else {
     let averageTemperature = (() => {
      //The temperature in F is used to calculate the average.
@@ -39,9 +54,18 @@ async function fanRegulator (fro) {
      temp = average(readings);
     })();
    }
-
-console.log(temp);
-
+   fro.fan.forEach((e,i) => {
+    //Turn off below 70F
+    if (temp < 70) adjustFan.emit('changeFanSpeed', e, 0);;
+    //Set fan speed to Low between 70+ to 90F
+    if (temp => 70 && temp <= 90) adjustFan.emit('changeFanSpeed', e, 170);;
+    //Set fan speed to Medium between 90+ to 100F
+    if (temp > 90 && temp <= 100) adjustFan.emit('changeFanSpeed', e, 213);;
+    //Set fan speed to High between 100+ to 110F
+    if (temp > 100 && temp <= 110) adjustFan.emit('changeFanSpeed', e, 255);;
+    //Shut system when greater than 110F
+    if (temp > 110) adjustFan.emit('emergencyShutdown');
+   });
   },1000);
 
 /*
