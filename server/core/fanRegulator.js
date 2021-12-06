@@ -33,28 +33,38 @@ async function fanRegulator (fro) {
    /*
     Call the .Leds sub function which accepts an array of Leds.
     I wish I knew about this earlier.
-    Source: https://github.com/rwaldron/johnny-five/blob/main/docs/led-array.md
+    Source:
+     - https://github.com/rwaldron/johnny-five/blob/main/docs/led-array.md
+     - https://github.com/rwaldron/johnny-five/blob/main/docs/led-array-controller.md
    */
-   //Using function keyword to allow the use of the this keyword
-   //Source: https://nodejs.org/api/events.html#passing-arguments-and-this-to-listeners
-   //p = an array of pins | s = speed (aka brightness in Johnny-Five)
-   adjustFan.on('changeFanSpeed', function (p,s) {
-    console.log(`Pins: ${p} | Speed: ${s} | Temp: ${temp}F`);
-    let fans = new five.Leds(p);
+   let fans = new five.Leds(fro.fan);
+   /*
+    Using function keyword to allow the use of the this keyword
+    Source: https://nodejs.org/api/events.html#passing-arguments-and-this-to-listeners
+    s = speed (aka brightness in Johnny-Five)
+   */
+   adjustFan.on('changeFanSpeed', (s) => {
+//    console.log(`Speed: ${s} | Temp: ${temp}${defaultScale.toUpperCase()}`);
     fans.brightness(s);
    });
-   adjustFan.on('emergencyShutdown', function (p,s) {
-    console.log(`Shutting Down: Pin: ${p} | Speed: ${s} | Temp: ${temp}F`);
+
+   adjustFan.on('off', () => {
+//    console.log(`Fan Off: Speed: 0 | Temp: ${temp}${defaultScale.toUpperCase()}`);
+    fans.off();
+   });
+
+   adjustFan.on('emergencyShutdown', (s) => {
+    console.log(`Shutting Down: Speed: ${s} | Temp: ${temp}${defaultScale.toUpperCase()}`);
     clearInterval(calculateAverageTemp);
    })
   });
   //setInterval to generate enclosure's temp
   let temp = defaultTemperaure;
-  async function emitTemperature (arrayOfPins) {
+  async function emitTemperature (obj) {
    let temperatureReadings = await temperatureSensor.readSensorAllDS18B20();
    if (temperatureReadings.status == 'failure') {
     console.log(`\n***Error Reading Temperature. Defaulting to ${temp}F.\n***${temperatureReadings.payload}`);
-    adjustFan.emit('changeFanSpeed', arrayOfPins, 170);
+    adjustFan.emit('changeFanSpeed', 170);
    } else {
     //Retrieve average temperature
     //I have to be doing something wrong. I shouldn't need to have two for loops here.
@@ -65,20 +75,23 @@ async function fanRegulator (fro) {
     }
    }
    //Emit an event that is passed an array of pins the fans are connected to and the speed
-   //Turn off below 70F
-   if (temp < 70) adjustFan.emit('changeFanSpeed', arrayOfPins, 0);
-   //Set fan speed to Low between 70+ to 90F
-   if (temp => 70 && temp <= 90) adjustFan.emit('changeFanSpeed', arrayOfPins, 170);
+//temp = core.getRandomInt(0,109)
+   //Turn off below 80F
+   if (temp < 80) adjustFan.emit('off');
+   //Set fan speed to Low between 80+ to 90F
+   if (temp > 80 && temp <= 90) adjustFan.emit('changeFanSpeed', 170);
    //Set fan speed to Medium between 90+ to 100F
-   if (temp > 90 && temp <= 100) adjustFan.emit('changeFanSpeed', arrayOfPins, 213);
+   if (temp > 90 && temp <= 100) adjustFan.emit('changeFanSpeed', 213);
    //Set fan speed to High between 100+ to 110F
-   if (temp > 100 && temp <= 110) adjustFan.emit('changeFanSpeed', arrayOfPins, 255);
+   if (temp > 100 && temp <= 110) adjustFan.emit('changeFanSpeed', 255);
    //Shut system when greater than 110F
-   if (temp > 110) adjustFan.emit('emergencyShutdown', arrayOfPins, 0);
+   if (temp > 110) adjustFan.emit('emergencyShutdown', 0);
   }
+
   let calculateAverageTemp = setInterval (() => {
-   emitTemperature(fro.fan)
-  },1000);
+   emitTemperature()
+  },10000);
+
  } catch (e) {
   console.log(e);
  }
