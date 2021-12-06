@@ -1,16 +1,16 @@
 /*
  Purpose - A collection of fan control functions
 */
-const core = require("./core.js");
 const EventEmitter = require('events');
 const five = require("johnny-five");
+const core = require("./core.js");
 const temperatureSensor = require("./temperatureSensor.js");
 
 //Set your default temperature scale here. Valid options: raw,k,f,c
 var defaultScale = "f";
 
 //Temp is in F.
-var defaultTemperaure = 70;
+var defaultTemperaure = 80;
 
 //Notes: 3k+ RPM fans turn on at around 168 brightness and max out at 255 like normal.
 //Pass this an array of numbers representing the pins that the fan(s) is/are connected to.
@@ -54,7 +54,7 @@ async function fanRegulator (fro) {
    });
 
    adjustFan.on('emergencyShutdown', (s) => {
-    console.log(`Shutting Down: Speed: ${s} | Temp: ${temp}${defaultScale.toUpperCase()}`);
+//    console.log(`Shutting Down: Speed: ${s} | Temp: ${temp}${defaultScale.toUpperCase()}`);
     clearInterval(calculateAverageTemp);
    })
   });
