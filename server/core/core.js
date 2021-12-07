@@ -3,9 +3,10 @@ const os = require('os');
 const fs = require('fs');
 const path = require('path');
 const childProcess = require('child_process');
+const util = require('util');
+const exec = util.promisify(childProcess.exec);
 const emoji = require('node-emoji');
 const system = require('../../system_confs/system_vars.json');
-//const mongoose = require('mongoose');
 
 //Variables and Constants
 var coreVars = {
@@ -92,7 +93,7 @@ function genSpecialOnly(x) {
 }
 
 //Generate a random number within defined range
-function getRandomNumber(min, max) {
+function getRandomInt(min, max) {
  return Math.round(Math.random() * (max - min) + min);
 }
 
@@ -106,13 +107,6 @@ function insertSpecialChars(word) {
  var index = getRandomInt(1, word.length);
  text = specialchar.charAt(Math.floor(Math.random() * specialchar.length));
  return word.substring(0, index) + text + word.substring(index);
-}
-
-//Source: https://stackoverflow.com/a/1527820
-function getRandomInt(min, max) {
- min = Math.ceil(min);
- max = Math.floor(max);
- return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
 //Source: https://gist.github.com/efenacigiray/9367920
@@ -180,7 +174,6 @@ function defaultErrorHandler (error) {
  returnObj.status = "failure";
  returnObj.message = `Function: ${arguments.callee.caller.name} - Error: ${errorMessage}`;
  returnObj.payload = error;
- console.error(returnObj);
  return returnObj;
 }
 
@@ -201,10 +194,22 @@ function temperatureConversion(temperature, scale) {
  }
 }
 
+async function checkMongoInstall () {
+ let returnObj = {"status": "success","message": "success","payload": ""};
+ try {
+  let output = await exec('which mongod');
+  if (output.stderr) throw output.stderr;
+  returnObj.payload = output.stdout;
+  return returnObj;
+ } catch (e) {
+  return defaultErrorHandler(e);
+ } finally {}
+}
+
 module.exports = {
  genRegular,
  genSpecial,
- getRandomNumber,
+ getRandomInt,
  createDir,
  changePerm,
  incorrectUser,
@@ -213,7 +218,6 @@ module.exports = {
  genSpecialOnly,
  randomCaps,
  insertSpecialChars,
- getRandomInt,
  replaceAt,
  uuidv4,
  validateJSON,
@@ -222,5 +226,6 @@ module.exports = {
  validPassword,
  genPassword,
  defaultErrorHandler,
- temperatureConversion
+ temperatureConversion,
+ checkMongoInstall
 }

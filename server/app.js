@@ -3,7 +3,7 @@ const core = require('./core/core.js');
 const fanControl = require('./core/fanRegulator.js');
 
 async function appCode () {
- console.log('Running App Specific Code...')
+ console.log(`${core.coreVars.projectName}|${process.env.pm_id}: Running App Specific Code...`)
  if (process.env.INSTANCE_TYPE == 'primary') {
   //Create the expected object for fanControl.fanRegulator
   let fanRegulatorObj = {fan: [2]};
