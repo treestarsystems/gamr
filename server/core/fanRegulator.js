@@ -91,7 +91,6 @@ async function fanRegulator (fro) {
   let calculateAverageTemp = setInterval (() => {
    emitTemperature()
   },10000);
-
  } catch (e) {
   console.log(e);
  }
