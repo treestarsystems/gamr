@@ -7,5 +7,4 @@ sudo modprobe w1-gpio
 sudo modprobe w1-therm
 echo -e "Installing App Specific Dependencies...\n"
 sudo /usr/bin/npm i johnny-five --save
-
-#sudo reboot
+sudo reboot
