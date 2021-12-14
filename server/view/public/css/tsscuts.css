@@ -125,6 +125,8 @@
  .fast-controls-container {
   padding: 80px 15px 15px 15px;
   position: initial;
+  -ms-transform: translateY(-10%);
+  transform: translateY(-10%);
  }
 
  .tss-nav-arrows {
@@ -140,9 +142,10 @@
 
 /*Source: https://codepen.io/MyXoToD/pen/xGRrgQ */
 .debug {
+/* margin: 50px; */
  color: var(--tsscuts-color-primary);
  font-family: monospace;
- position: absolute;
+ position: fixed;
  top: 50%;
  left: 50%;
  transform: translate3d(-50%, -50%, 0);
@@ -150,14 +153,15 @@
  font-size: 3vw;
 }
 .circle {
- position: absolute;
+ position: fixed;
+/* margin: 50px; */
  top: 50%;
  left: 50%;
  background-color: var(--tsscuts-color-secondary);
  border-radius: 50%;
- width: 80%;
+ width: 35%;
  height: 0;
- padding-bottom: 80%;
+ padding-bottom: 35%;
  transform: translate3d(-50%, -50%, 0);
  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }
@@ -193,3 +197,4 @@
  border-radius: 50%;
  cursor: pointer;
 }
+
