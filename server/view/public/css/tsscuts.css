@@ -142,7 +142,6 @@
 
 /*Source: https://codepen.io/MyXoToD/pen/xGRrgQ */
 .debug {
-/* margin: 50px; */
  color: var(--tsscuts-color-primary);
  font-family: monospace;
  position: fixed;
@@ -154,7 +153,6 @@
 }
 .circle {
  position: fixed;
-/* margin: 50px; */
  top: 50%;
  left: 50%;
  background-color: var(--tsscuts-color-secondary);
@@ -198,3 +196,6 @@
  cursor: pointer;
 }
 
+.controlsArmSliders + .rangeslider {
+ margin-left: 35%;
+}

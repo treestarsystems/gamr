@@ -1,5 +1,35 @@
 var pageSpecificTargetDiv;
 
+//Dynamically resize the radial slider on the controls page
+function resizeControlRadialSlider () {
+ try {
+  const controlsRadialContainer = document.getElementById('controlsRadialContainer');
+  const controlsRadial = document.querySelector('#controlsRadial .circle');
+  let controlsRadialWidthPercentage;
+  if (screen.width <= 1024) controlsRadialWidthPercentage = 0.50;
+  if (screen.width > 1024 && screen.width <= 1280) controlsRadialWidthPercentage = 0.45;
+  if (screen.width > 1280) controlsRadialWidthPercentage = 0.40;
+  let controlsRadialWidth = Math.floor(controlsRadialContainer.getBoundingClientRect().width * controlsRadialWidthPercentage);
+  controlsRadial.setAttribute("style", `width:${controlsRadialWidth}px !important; padding-bottom:${controlsRadialWidth}px !important;`);
+ } catch (e) {
+  console.log(defaultErrorHandler(e));
+ }
+}
+
+function resizeControlArmsSlider () {
+ try {
+  const controlsArmSliders = document.querySelectorAll('.controlsArmSliders');
+  let controlsArmSlidersWidthPercentage = 0.45;
+  controlsArmSliders.forEach((e,i) => {
+   let w = Math.floor(e.parentNode.getBoundingClientRect().width * controlsArmSlidersWidthPercentage);
+   //Go up one level and find the matching class within the parent node.
+   e.parentNode.querySelector('.rangeslider').setAttribute("style", `margin-left:${w}px !important;`);
+  });
+ } catch (e) {
+  console.log(defaultErrorHandler(e));
+ }
+}
+
 //Take an array of image file names and the id of the img element
 function randomPicture(pa) {
  let selectedObj = pa[Math.floor(Math.random() * pa.length)];
@@ -120,6 +150,22 @@ async function engineControl (controlWord) {
  } finally{}
 }).call(this);
 
+//Applying rangeslider.js to range elements
+var $controlSliderElement = $('.controlsArmSliders');
+function updateOutput(id, val) {
+// console.log(id,val);
+}
+$controlSliderElement
+ .rangeslider({
+  polyfill: false,
+  onInit: () => {
+   updateOutput(this.id, this.value);
+  }
+ })
+ .on('input', () => {
+  updateOutput(this.id, this.value);
+ });
+
 var pictureArray = [
  {"image":"martin-mart-3d-grass-collection-vol01-02.jpg","link":"https://www.artstation.com/artwork/rA0AoO","author":"Superb CG"},
  {"image":"pawel-pecherzewski-entrance-shadow-final-01.jpg","link":"https://www.artstation.com/artwork/0v0bV","author":"Paweł Pęcherzewski"},
@@ -141,3 +187,12 @@ var colorArray = [
 
 randomPicture(pictureArray);
 randomPageColor(colorArray);
+//Resize radial and vertical sliders on initial page load.
+resizeControlRadialSlider();
+resizeControlArmsSlider();
+//Event listener to resize radial and vertical sliders.
+window.addEventListener('resize', () => {
+ resizeControlRadialSlider();
+ resizeControlArmsSlider();
+});
+

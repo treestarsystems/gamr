@@ -17,6 +17,7 @@
     <link rel="stylesheet" href="../public/css/owl.carousel.css" type="text/css">
     <link rel="stylesheet" href="../public/css/magnific-popup.css" type="text/css">
     <link rel="stylesheet" href="../public/css/main.css" type="text/css">
+    <link rel="stylesheet" href="../public/css/rangeslider.css" type="text/css">
     <link rel="stylesheet" href="../public/css/tsscuts.css" type="text/css">
     <script src="../public/js/modernizr.custom.js"></script>
   </head>
@@ -125,10 +126,10 @@
                <div class="section-content" style="height:85%">
                 <div class="row" style="height:100%">
                  <!-- Start of Controls -->
-                 <div class="col-md-2" id="controlsLeftArm" style="border:1px solid black">
-                  <input class="vertical-controls-slider" orient="vertical" type="range" step="0.5" value="0" min="1" max="10">
+                 <div class="col-md-2" id="controlsLeftArmContainer" style="border:1px solid black">
+                  <input type="range" data-orientation="vertical" id="controlsLeftArmSlider" class="controlsArmSliders" value="0" max="100" min="0">
                  </div>
-                 <div class="col-md-8" style="border:1px solid black">
+                 <div class="col-md-8" style="border:1px solid black" id="controlsRadialContainer">
                   <div id="controlsRadial">
                    <!-- Source: https://codepen.io/MyXoToD/pen/xGRrgQ -->
                    <div class="debug">0deg</div>
@@ -137,8 +138,8 @@
                    </div>
                   </div>
                  </div>
-                 <div class="col-md-2 vertical" id="controlsRightArm" style="border:1px solid black">
-                  <div id="vertical-controls-slider"></div>
+                 <div class="col-md-2 vertical" id="controlsRightArmContainer" style="border:1px solid black">
+                  <input type="range" data-orientation="vertical" id="controlsRightArmSlider" class="controlsArmSliders" value="0" max="100" min="0">
                  </div>
                  <!-- End Controls -->
                 </div>
@@ -560,6 +561,7 @@ function initMap() {
 </script>
     <script src="../public/js/validator.js"></script>
     <script src="../public/js/main.js"></script>
+    <script src="../public/js/rangeslider.min.js"></script>
     <script src="../public/js/tsscuts.js"></script>
 </body>
 </html>
