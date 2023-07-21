@@ -45,17 +45,17 @@ async function fanRegulator (fro) {
     s = speed (aka brightness in Johnny-Five)
    */
    adjustFan.on('changeFanSpeed', (s) => {
-    console.log(`Speed: ${s} | Temp: ${temp}${defaultScale.toUpperCase()}`);
+    console.log(`Speed: ${s} | Temp: ${temp.toFixed(2)}${defaultScale.toUpperCase()}`);
     fans.brightness(s);
    });
 
    adjustFan.on('off', () => {
-    console.log(`Fan Off: Speed: 0 | Temp: ${temp}${defaultScale.toUpperCase()}`);
+    console.log(`Fan Off: Speed: 0 | Temp: ${temp.toFixed(2)}${defaultScale.toUpperCase()}`);
     fans.off();
    });
 
    adjustFan.on('emergencyShutdown', (s) => {
-    console.log(`Shutting Down: Speed: ${s} | Temp: ${temp}${defaultScale.toUpperCase()}`);
+    console.log(`Shutting Down: Speed: ${s} | Temp: ${temp.toFixed(2)}${defaultScale.toUpperCase()}`);
     clearInterval(calculateAverageTemp);
    })
   });
@@ -64,7 +64,7 @@ async function fanRegulator (fro) {
   async function emitTemperature (obj) {
    let temperatureReadings = await temperatureSensor.readSensorAllDS18B20();
    if (temperatureReadings.status == 'failure') {
-    console.log(`\n***Error Reading Temperature. Defaulting to ${temp}F.\n***${temperatureReadings.payload}`);
+    console.log(`\n***Error Reading Temperature. Defaulting to ${temp.toFixed(2)}F.\n***${temperatureReadings.payload}`);
     adjustFan.emit('changeFanSpeed', 170);
    } else {
     //Retrieve average temperature
